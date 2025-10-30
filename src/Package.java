@@ -1,60 +1,76 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
 
 /** Package/File mã nguồn. */
 public final class Package {
-    private final ClassName packageName = new ClassName();
     private final List<ClassName> definedClass = new ArrayList<>();
     private final List<String> methods = new ArrayList<>();
 
     /**
      * Khởi tạo một Package/File code.
      *
-     * @param lines các dòng trong file
+     * @param sourceCode Mã nguồn của code
      */
-    public Package(List<String> lines) {
-        int scopeLevel = -1;
+    public Package(String sourceCode) {
+        sourceCode = Utilities.machineFormating(sourceCode);
+        String[] lines = sourceCode.split("\n");
+
+        // * Load các định nghĩa
+        final ClassName currentClassScope = new ClassName();
+        Stack<Boolean> inClassCodeBlock = new Stack<>();
+        // chỉ có tác dụng cache xem khối mở ({) sắp đi tới qua có quan trọng hay không (theo định
+        // nghĩa ở line trước đó)
+        boolean isNextClassCodeBlock = false;
         for (String line : lines) {
-            if (scopeLevel < 0) {
+            // ? Là 1 line định nghĩa (package, import, class)
+            if (inClassCodeBlock.empty()) {
                 // Package
-                final String packageRawName = Utilities.filterPackageName(line);
-                if (packageRawName != null) {
-                    packageName.setFullName(packageRawName);
+                final String packageNameRaw = Utilities.filterPackageName(line);
+                if (packageNameRaw != null) {
+                    currentClassScope.setFullName(packageNameRaw);
                     continue;
                 }
 
                 // Import
-                final String importRawName = Utilities.filterImportName(line);
-                if (importRawName != null) {
-                    final ClassName importName = new ClassName(importRawName);
+                final String importNameRaw = Utilities.filterImportName(line);
+                if (importNameRaw != null) {
+                    final ClassName importName = new ClassName(importNameRaw);
                     definedClass.add(importName);
                     continue;
                 }
-            } else {
-                // Class
-                final String classRawName = Utilities.filterClassName(line);
-                if (classRawName != null) {
-                    final ClassName className =
-                            new ClassName(packageName.getFullName(), classRawName);
-                    definedClass.add(className);
-                }
             }
-            // Update Scope
-            scopeLevel += Utilities.countChar(line, '{');
-            scopeLevel -= Utilities.countChar(line, '}');
-            // Method
-            if (scopeLevel == 1) {
-                final String methodRaw = Utilities.filterMethod(line, definedClass);
-                if (methodRaw != null) {
-                    methods.add(methodRaw);
-                }
-            }
-        }
-    }
+            // Class
+            final String classNameRaw = Utilities.filterClassName(line);
+            if (classNameRaw != null) {
+                currentClassScope.addChild(classNameRaw);
+                isNextClassCodeBlock = true;
 
-    public ClassName getPackageName() {
-        return packageName;
+                definedClass.add(new ClassName(currentClassScope));
+                continue;
+            }
+
+            // Method (cached để load sau)
+            if (Utilities.isMethodLine(line)) {
+                methods.add(line);
+                continue;
+            }
+
+            // ? Là 1 line đóng/mở Code block
+            // Update độ quan trọng của block hiện tại
+            if (line.equals("{")) {
+                inClassCodeBlock.add(isNextClassCodeBlock);
+                isNextClassCodeBlock = false;
+            } else if (line.equals("}")) {
+                if (inClassCodeBlock.pop()) {
+                    currentClassScope.popChild();
+                }
+            }
+            System.out.println(definedClass.getLast().toString());
+        }
+
+        // * Parsing Method
+        methods.replaceAll(line -> Utilities.filterMethod(line, definedClass));
     }
 
     public List<ClassName> getDefinedClass() {
@@ -63,9 +79,5 @@ public final class Package {
 
     public List<String> getMethods() {
         return methods;
-    }
-
-    public Package(String fileContent) {
-        this(Arrays.asList(fileContent.split("\n")));
     }
 }

@@ -1,23 +1,25 @@
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Utils. */
 public final class Utilities {
-    private static final Pattern CLEAN_METHOD_PATTERN =
-            Pattern.compile("[\\s\\S]+ (\\w+)\\(([\\s\\S]*)\\)");
-
-    /**
-     * Chuẩn hóa xâu.
-     *
-     * @param line Xâu
-     * @return Xâu sau khi chuẩn hóa
-     */
-    public static String getStandard(String line) {
-        return line.trim().replaceAll("\\s+", " ").replaceAll("\\s*;+", ";");
-    }
+    private static final Pattern PACKAGE = Pattern.compile("package ([\\w.]+);"); // [name]
+    private static final Pattern IMPORT =
+            Pattern.compile("import(?: static)? ([\\w.]+);"); // [name]
+    private static final Pattern CLASS =
+            Pattern.compile(
+                    "public (?:\\w+\\s+)*(?:class|interface) (\\w+)(?: extends \\w+)?(?: implements [\\w\\s,]+)?"); // [name]
+    private static final Pattern METHOD =
+            Pattern.compile("public static [\\s\\S]*? (\\w+)\\(([\\s\\S]*?)\\)"); // [name, params]
+    private static final Pattern METHOD_PARAM =
+            Pattern.compile(
+                    "(?:final\\s+)?([\\w.]+(?:<[\\s\\S]*?>)?)(?:...|\\[])? (\\w+)"); // [type, name]
+    private static final Pattern METHOD_PARAM_TYPE =
+            Pattern.compile("\\b([\\w.]+)\\b"); // [typeName]
 
     /**
      * Lọc Tên Package từ dòng code.
@@ -26,9 +28,9 @@ public final class Utilities {
      * @return Tên package (thô)
      */
     public static String filterPackageName(String line) {
-        line = getStandard(line);
-        if (line.startsWith("package ") && line.endsWith(";")) {
-            return line.replace("package ", "").replace(";", "");
+        Matcher match = PACKAGE.matcher(line);
+        if (match.matches()) {
+            return match.group(1);
         }
         return null;
     }
@@ -40,9 +42,9 @@ public final class Utilities {
      * @return Class được import (thô và đầy đủ)
      */
     public static String filterImportName(String line) {
-        line = getStandard(line);
-        if (line.startsWith("import ") && line.endsWith(";")) {
-            return line.replace("import ", "").replace(";", "");
+        Matcher match = IMPORT.matcher(line);
+        if (match.matches()) {
+            return match.group(1);
         }
         return null;
     }
@@ -54,82 +56,100 @@ public final class Utilities {
      * @return Tên class đó
      */
     public static String filterClassName(String line) {
-        line = getStandard(line);
-        if (line.contains("public ") && line.contains("class ")) {
-            line = line.replaceAll("\\s*\\{\\s*", "");
-            return line.substring(line.lastIndexOf("class ") + "class ".length());
+        Matcher match = CLASS.matcher(line);
+        if (match.matches()) {
+            return match.group(1);
         }
         return null;
+    }
+
+    /**
+     * Đây có phải line method không.
+     *
+     * @param line Line cần kiểm tra
+     * @return {@code true} nếu là line mô tả định nghĩa method, ngược lại {@code false}
+     */
+    public static boolean isMethodLine(String line) {
+        Matcher match = METHOD.matcher(line);
+        return match.matches();
     }
 
     /**
      * Lọc Method về định dạng mong muốn.
      *
      * @param line Dòng code chứa định nghĩa
-     * @param defined Các class đã được định nghĩa
+     * @param definedClass Các class đã được định nghĩa
      * @return Method ở định dạng mong muốn
      */
-    public static String filterMethod(String line, List<ClassName> defined) {
-        line = getStandard(line);
-        if (line.contains("public static ") && !line.contains("class ")) {
-            // Delete
-            line = line.replaceAll("\\s*\\{\\s*", "").replace("public static ", "");
-            if (line.contains(" throws")) {
-                line = line.substring(0, line.lastIndexOf(" throws"));
-            }
+    public static String filterMethod(String line, List<ClassName> definedClass) {
+        Matcher match = METHOD.matcher(line);
+        if (match.matches()) {
+            final String name = match.group(1);
+            final String rawParams = match.group(2);
+            final String params = filterParams(rawParams, definedClass);
 
-            // Re-create
-            final List<String> parsedLine = parseMethod(line);
-            line =
-                    parsedLine.get(0)
-                            + '('
-                            + filterParams(parsedLine.get(parsedLine.size() - 1))
-                            + ')';
-
-            // Replacement
-            for (ClassName d : defined) {
-                line = line.replace(d.getSimpleName(), d.getFullName());
-            }
-            return line;
+            return String.format("%s(%s)", name, params);
         }
         return null;
     }
 
-    private static String filterParams(String params) {
-        List<String> result = new ArrayList<>();
-        String[] paramArray = params.split("\\s*,\\s*");
-        for (String param : paramArray) {
-            final List<String> words = new ArrayList<>(Arrays.asList(param.split("\\s+")));
-            words.remove(words.size() - 1);
-            result.add(String.join("", words));
+    private static String filterParams(String params, List<ClassName> definedClass) {
+        List<String> paramList = new ArrayList<>();
+        Matcher match = METHOD_PARAM.matcher(params);
+        while (match.find()) {
+            String paramTypes = match.group(1);
+            paramTypes = filterParamTypes(paramTypes, definedClass);
+            paramList.add(paramTypes);
         }
-        return String.join(",", result);
+        return String.join(",", paramList);
     }
 
-    private static List<String> parseMethod(String cleanLine) {
-        Matcher matcher = CLEAN_METHOD_PATTERN.matcher(cleanLine);
-        List<String> res = new ArrayList<String>();
-        if (matcher.matches()) {
-            res.add(matcher.group(1));
-            res.add(matcher.group(2));
+    private static String filterParamTypes(String paramTypes, List<ClassName> definedClass) {
+        HashMap<String, ClassName> typeReplacements = new HashMap<>();
+        Matcher match = METHOD_PARAM_TYPE.matcher(paramTypes);
+        while (match.find()) {
+            final String rawClassName = match.group(1);
+            typeReplacements.putIfAbsent(
+                    rawClassName, ClassName.autoDetect(rawClassName, definedClass));
         }
-        return res;
+
+        for (Map.Entry<String, ClassName> typeReplacement : typeReplacements.entrySet()) {
+            paramTypes.replace(
+                    typeReplacement.getKey(), typeReplacement.getValue().getFullName());
+        }
+        return paramTypes;
     }
 
     /**
-     * Đếm cố kí tự {@code character}.
+     * Format lại code kiểu "máy" đọc.
      *
-     * @param string Xâu cần đếm.
-     * @param character Kí tự
-     * @return Số kí tự đó trong xâu
+     * @param code Source code gốc.
+     * @return Code người khó đọc
      */
-    public static int countChar(String string, char character) {
-        int count = 0;
-        for (int i = 0; i < string.length(); ++i) {
-            if (string.charAt(i) == character) {
-                ++count;
-            }
+    public static String machineFormating(String code) {
+        return code.replaceAll("\"[\\s\\S]*?\"", "") // ko có chỗ cho string const xd
+                .replaceAll("/\\*[\\s\\S]*?\\*/", "") // Xóa comment dạng /* */
+                .replaceAll("//.*", "") // Xóa comment dạng //
+                .replaceAll(" +(\\W) +", "$1") // xóa kiểu "a = b" -> "a=b" (aka sát lại gần nhau)
+                .replaceAll("(\\s)\\s+", "$1") // Rút gọn double spacing
+                .replaceAll("\\s*([{}])\\s*", "\n$1\n") // Format lại new line của code block
+                .replaceAll("\n\n+", "\n") // Xóa double new line
+        ;
+    }
+
+    /**
+     * Class tên {@code fullName} có tồn tại không?
+     *
+     * @param fullName Tên đầy đủ của class
+     * @return {@code true} nếu tồn tại, {@code false} nếu em cung dang voi thi con co hoi gi cho
+     *     toi :<
+     */
+    public static boolean isClassExisted(String fullName) {
+        try {
+            Class<?> clazz = Class.forName(fullName);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
-        return count;
     }
 }
