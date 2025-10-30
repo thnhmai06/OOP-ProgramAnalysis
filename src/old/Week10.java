@@ -1,3 +1,5 @@
+package old;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,7 +36,7 @@ public class Week10 {
                 writer.write(line);
                 writer.write("\n");
             }
-//            writer.write(Utilities.machineFormating(content));
+//            writer.write(old.Utilities.machineFormating(content));
             writer.close();
         } catch (Exception e) {
             throw new RuntimeException(e);

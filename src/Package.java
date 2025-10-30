@@ -1,83 +1,28 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-/** Package/File mã nguồn. */
-public final class Package {
-    private final List<ClassName> definedClass = new ArrayList<>();
-    private final List<String> methods = new ArrayList<>();
+/**
+ *
+ *
+ * <h1>{@link Package}</h1>
+ *
+ * <p>Một Tham chiếu tới Package đã được định nghĩa, nơi mà chứa các {@link SourceCode}. <br>
+ * Tương đương với {@link java.lang.Package}. Không chứa thành phần con.
+ */
+public class Package extends Snapshot {
+    public static final Pattern PATTERN = Pattern.compile("package ([\\w.]+);"); // [name]
 
-    /**
-     * Khởi tạo một Package/File code.
-     *
-     * @param sourceCode Mã nguồn của code
-     */
-    public Package(String sourceCode) {
-        sourceCode = Utilities.machineFormating(sourceCode);
-        String[] lines = sourceCode.split("\n");
-
-        // * Load các định nghĩa
-        final ClassName currentClassScope = new ClassName();
-        Stack<Boolean> inClassCodeBlock = new Stack<>();
-        // chỉ có tác dụng cache xem khối mở ({) sắp đi tới qua có quan trọng hay không (theo định
-        // nghĩa ở line trước đó)
-        boolean isNextClassCodeBlock = false;
-        for (String line : lines) {
-            // ? Là 1 line định nghĩa (package, import, class)
-            if (inClassCodeBlock.empty()) {
-                // Package
-                final String packageNameRaw = Utilities.filterPackageName(line);
-                if (packageNameRaw != null) {
-                    currentClassScope.setFullName(packageNameRaw);
-                    continue;
-                }
-
-                // Import
-                final String importNameRaw = Utilities.filterImportName(line);
-                if (importNameRaw != null) {
-                    final ClassName importName = new ClassName(importNameRaw);
-                    definedClass.add(importName);
-                    continue;
-                }
-            }
-            // Class
-            final String classNameRaw = Utilities.filterClassName(line);
-            if (classNameRaw != null) {
-                currentClassScope.addChild(classNameRaw);
-                isNextClassCodeBlock = true;
-
-                definedClass.add(new ClassName(currentClassScope));
-                continue;
-            }
-
-            // Method (cached để load sau)
-            if (Utilities.isMethodLine(line)) {
-                methods.add(line);
-                continue;
-            }
-
-            // ? Là 1 line đóng/mở Code block
-            // Update độ quan trọng của block hiện tại
-            if (line.equals("{")) {
-                inClassCodeBlock.add(isNextClassCodeBlock);
-                isNextClassCodeBlock = false;
-            } else if (line.equals("}")) {
-                if (inClassCodeBlock.pop()) {
-                    currentClassScope.popChild();
-                }
-            }
-            System.out.println(definedClass.getLast().toString());
+    @Override
+    void read(String definition) {
+        Matcher match = PATTERN.matcher(definition);
+        if (match.matches()) {
+            fullName = match.group(1);
         }
-
-        // * Parsing Method
-        methods.replaceAll(line -> Utilities.filterMethod(line, definedClass));
     }
 
-    public List<ClassName> getDefinedClass() {
-        return definedClass;
-    }
+    public Package() {}
 
-    public List<String> getMethods() {
-        return methods;
+    public Package(String definition) {
+        read(definition);
     }
 }
