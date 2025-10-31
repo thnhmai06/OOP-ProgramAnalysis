@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-/** old.Package/File mã nguồn. */
+/** old.Package/File mã nguồn.
+ *
+ * @deprecated */
 public final class Package {
     private final List<ClassName> definedClass = new ArrayList<>();
     private final List<String> methods = new ArrayList<>();

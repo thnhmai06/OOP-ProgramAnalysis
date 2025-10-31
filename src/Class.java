@@ -1,68 +1,128 @@
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  *
  *
  * <h1>{@link Class}</h1>
  *
- * Một Class đầy đủ được định nghĩa trong {@link SourceCode}. <br>
+ * Một Class. Yep. Bạn mong chờ điều gì chứ :))). <br>
  * Giống như {@link java.lang.Class}
  *
- * @see SnapshotClass
+ * @apiNote checked
  */
-public class Class extends Definition {
-    public static final Pattern PATTERN =
-            Pattern.compile("public (?:\\w+\\s+)*(?:class|interface) (\\w+)"); // [name]
+public final class Class extends Definition {
+    /**
+     * Lọc ra các {@link Class} trong {@link HashSet} các {@link Definition}.
+     *
+     * @param definitions Các {@link Definition}
+     * @return Các {@link Class}
+     */
+    public static List<Class> filter(List<Definition> definitions) {
+        List<Class> res = new LinkedList<>();
+        for (Definition definition : definitions) {
+            if (definition instanceof Class) {
+                res.add((Class) definition);
+            }
+        }
+        return res;
+    }
 
-    private Snapshot parent;
-    private final HashSet<SnapshotClass> declared = new HashSet<>();
-    private final HashSet<Method> methods = new HashSet<>();
+    /**
+     * Tìm kiếm/Tạo {@link Class} phù hợp với tên {@code name} trong {@code definedClasses}.
+     *
+     * @param name Tên cần tìm
+     * @param definedClasses Danh sách các {@lick Class} đã định nghĩa
+     * @return Class phù hợp với {@code name}
+     */
+    public static Class filter(String name, List<Class> definedClasses) {
+        // Đã là Full name
+        boolean isFullName = Utilities.isClassExisted(name);
+
+        // Nằm trong đống defined
+        for (Class definedClass : definedClasses) {
+            if (isFullName) {
+                if (name.equals(definedClass.getFullName())) {
+                    return definedClass;
+                }
+            } else if (name.equals(definedClass.getSimpleName())) {
+                return definedClass;
+            }
+        }
+
+        // Vẫn ko thấy, dành thử với với class sẵn có thường thấy trong java
+        final String[] commons = {"java.util.", "java.lang."};
+        for (String common : commons) {
+            final var possibleName = common + name;
+            if (Utilities.isClassExisted(possibleName)) {
+                final Class newClass = new Class(possibleName); // không quan tâm tới package ở đây
+                definedClasses.add(newClass);
+                return newClass;
+            }
+        }
+
+        // thua, hết cứu, vậy là lần cuối đi bên nhau cay đắng nhưng ko đau :<
+        final Class newClass = new Class(name);
+        definedClasses.add(newClass);
+        return newClass;
+    }
 
     @Override
-    public void read(String definition, Scanner source, HashSet<SnapshotClass> declared) {
-        Matcher match = PATTERN.matcher(definition);
-        if (match.matches()) {
-            simpleName = match.group(1);
-        } else return;
+    protected void readSignature(String signature, List<Definition> externalDefinition) {
+        Matcher internalMatch = Patterns.CLASS.matcher(signature);
+        if (internalMatch.matches()) {
+            simpleName = internalMatch.group(1);
+            return;
+        }
+
+        Matcher externalMatch = Patterns.IMPORT.matcher(signature);
+        if (externalMatch.matches()) {
+            final String patentName = externalMatch.group(1);
+            simpleName = externalMatch.group(2);
+
+            final List<Package> packages = Package.filter(externalDefinition);
+            packages.removeIf(pkg -> !pkg.getFullName().equals(patentName));
+            if (packages.isEmpty()) {
+                simpleName =
+                        String.format(
+                                "%s%s%s", patentName, !patentName.isEmpty() ? "." : "", simpleName);
+            } else {
+                parent = packages.get(0);
+            }
+            return;
+        }
+
+        throw new IllegalArgumentException("Không đọc được Class: " + signature);
+    }
+
+    @Override
+    public void readCodeBlock(Scanner source, List<Definition> externalDefinition) {
+        // TODO: Logic đọc Method bắt đầu ở đây.
     }
 
     @Override
     public String getFullName() {
-        return "";
+        final String parentFullName = (parent != null) ? parent.getFullName() : "";
+        return String.format("%s.%s", parentFullName, simpleName);
     }
 
-    @Override
-    public Snapshot takeSnapshot() {
-        return new SnapshotClass(this);
+    private Class(String simpleName) {
+        this.simpleName = simpleName;
     }
 
-    public Snapshot getParent() {
-        return parent;
-    }
-
-    public void setParent(Snapshot parent) {
+    public Class(Definition parent) {
         this.parent = parent;
-    }
-
-    public HashSet<SnapshotClass> getDeclared() {
-        return declared;
-    }
-
-    public HashSet<Method> getMethods() {
-        return methods;
-    }
-
-    public Class(Snapshot parent) {
-        this.parent = parent;
-        declared.add((SnapshotClass) takeSnapshot());
     }
 
     public Class(
-            Snapshot parent, String definition, Scanner source, HashSet<SnapshotClass> declared) {
+            Definition parent,
+            String definition,
+            Scanner source,
+            LinkedList<Definition> externalDeclaration) {
         this(parent);
-        read(definition, source, declared);
+        readCodeBlock(source, externalDeclaration);
     }
 }

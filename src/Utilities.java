@@ -1,6 +1,6 @@
 import java.lang.Class;
 
-public class Utilities {
+public final class Utilities {
     /**
      * Class có tên {@code fullName} có tồn tại không?
      *
@@ -34,4 +34,6 @@ public class Utilities {
                 .replaceAll("\n\n+", "\n") // Xóa double new line
         ;
     }
+
+    private Utilities() {}
 }
