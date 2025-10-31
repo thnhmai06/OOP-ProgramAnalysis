@@ -1,4 +1,9 @@
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 
 /**
@@ -30,12 +35,15 @@ public final class Class extends Definition {
 
     /**
      * Tìm kiếm/Tạo {@link Class} phù hợp với tên {@code name} trong {@code definedClasses}.
+     * <br>
+     *<i> aka tìm bố mẹ cho trẻ lạc :> </i>
      *
      * @param name Tên cần tìm
-     * @param definedClasses Danh sách các {@lick Class} đã định nghĩa
+     * @param definedClasses Danh sách các {@link Class} đã định nghĩa
+     * @param fallback Sử dụng {@link Definition} này làm parent nếu không thấy parent
      * @return Class phù hợp với {@code name}
      */
-    public static Class filter(String name, List<Class> definedClasses) {
+    public static Class find(String name, List<Class> definedClasses, Definition fallback) {
         // Đã là Full name
         boolean isFullName = Utilities.isClassExisted(name);
 
@@ -63,18 +71,13 @@ public final class Class extends Definition {
 
         // thua, hết cứu, vậy là lần cuối đi bên nhau cay đắng nhưng ko đau :<
         final Class newClass = new Class(name);
+        newClass.parent = fallback;
         definedClasses.add(newClass);
         return newClass;
     }
 
     @Override
-    protected void readSignature(String signature, List<Definition> externalDefinition) {
-        Matcher internalMatch = Patterns.CLASS.matcher(signature);
-        if (internalMatch.matches()) {
-            simpleName = internalMatch.group(1);
-            return;
-        }
-
+    protected void readSignature(String signature, List<Definition> externalDefinition, Definition fallback) {
         Matcher externalMatch = Patterns.IMPORT.matcher(signature);
         if (externalMatch.matches()) {
             final String parentName = externalMatch.group(1);
@@ -93,62 +96,75 @@ public final class Class extends Definition {
             return;
         }
 
+        Matcher internalMatch = Patterns.CLASS.matcher(signature);
+        if (internalMatch.matches()) {
+            simpleName = internalMatch.group(1);
+            return;
+        }
+
         throw new IllegalArgumentException("Không đọc được Class: " + signature);
     }
 
     @Override
-    public void readCodeBlock(Scanner source, List<Definition> externalDefinition) {
+    public void readCodeBlock(Scanner source, List<Definition> externalDefinition, Definition fallback) {
         LinkedHashMap<Method, String> holder = new LinkedHashMap<>();
         final List<Definition> definedClassAndPackage = getDeclared(); // lazy
         if (source.nextLine().contains("{")) {
+            int balance = 0;
             do {
                 final String line = source.nextLine();
-                if (line.contains("}")) {
-                    break;
-                }
 
-                if (Patterns.CLASS.matcher(line).matches()) {
-                    final Class clazz = new Class(this, line, source, definedClassAndPackage);
-                    localDeclared.add(clazz);
-                    definedClassAndPackage.add(clazz); // lazy update
-                } else if (Patterns.METHOD.matcher(line).matches()) {
+                // TH Class lồng class (bỏ qua)
+                //                if (Patterns.CLASS.matcher(line).matches()) {
+                //                    final Class clazz = new Class(this, line, source,
+                // definedClassAndPackage);
+                //                    localDeclared.add(clazz);
+                //                    definedClassAndPackage.add(clazz); // lazy update
+                //                } else
+                if (Patterns.METHOD.matcher(line).matches()) {
                     final Method method = new Method(this);
                     localDeclared.add(method);
                     holder.put(method, line);
 
-                    method.readCodeBlock(source);
+                    method.readCodeBlock(source, fallback);
                 }
-            } while (source.hasNextLine());
+
+                // update balance
+                balance += Utilities.countChar(line, '{');
+                balance -= Utilities.countChar(line, '}');
+            } while (source.hasNextLine() && balance >= 0);
         }
 
         for (Map.Entry<Method, String> hold : holder.entrySet()) {
             final Method method = hold.getKey();
             final String signature = hold.getValue();
-            method.readSignature(signature, this.getDeclared());
+            method.readSignature(signature, this.getDeclared(), fallback);
         }
     }
 
     @Override
     public String getFullName() {
-        final String parentFullName = (parent != null) ? parent.getFullName() : "";
-        return String.format("%s.%s", parentFullName, simpleName);
+        if (parent == null) {
+            return getSimpleName();
+        }
+        return String.format("%s.%s", parent.getFullName(), simpleName);
     }
 
     private Class(String simpleName) {
         this.simpleName = simpleName;
     }
 
-    public Class(Definition parent, String signature, List<Definition> externalDeclaration) {
+    public Class(Definition parent, String signature, List<Definition> externalDeclaration, Definition fallback) {
         this.parent = parent;
-        readSignature(signature, externalDeclaration);
+        readSignature(signature, externalDeclaration, fallback);
     }
 
     public Class(
             Definition parent,
             String signature,
             Scanner source,
-            List<Definition> externalDeclaration) {
-        this(parent, signature, externalDeclaration);
-        readCodeBlock(source, externalDeclaration);
+            List<Definition> externalDeclaration, Definition fallback) {
+        this(parent, signature, externalDeclaration, fallback);
+        readCodeBlock(source, externalDeclaration, fallback);
     }
 }

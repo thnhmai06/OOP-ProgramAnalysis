@@ -34,7 +34,7 @@ public final class Package extends Definition {
     }
 
     @Override
-    protected void readSignature(String signature, List<Definition> externalDefinition) {
+    protected void readSignature(String signature, List<Definition> externalDefinition, Definition fallback) {
         Matcher internalMatch = Patterns.PACKAGE.matcher(signature);
         if (internalMatch.matches()) {
             simpleName = internalMatch.group(1);
@@ -44,38 +44,37 @@ public final class Package extends Definition {
     }
 
     @Override
-    protected void readCodeBlock(Scanner source, List<Definition> externalDefinition) {
+    protected void readCodeBlock(Scanner source, List<Definition> externalDefinition, Definition fallback) {
         if (source.nextLine().contains("{")) {
+            int balance = 0;
             do {
                 final String line = source.nextLine();
-                if (line.contains("}")) {
-                    break;
-                }
 
                 if (Patterns.IMPORT.matcher(line).matches()) {
-                    localDeclared.add(new Class(this, line, getDeclared()));
-                    continue;
-                }
-                if (Patterns.CLASS.matcher(line).matches()) {
-                    main = new Class(this, line, getDeclared());
+                    localDeclared.add(new Class(this, line, getDeclared(), fallback));
+                } else if (Patterns.CLASS.matcher(line).matches()) {
+                    main = new Class(this, line, source, getDeclared(), fallback);
                     localDeclared.add(main);
-                    continue;
                 }
-            } while (source.hasNextLine());
+
+                // update balance
+                balance += Utilities.countChar(line, '{');
+                balance -= Utilities.countChar(line, '}');
+            } while (source.hasNextLine() && balance >= 0);
         }
     }
 
-    public void readSignature(String signature) {
-        readSignature(signature, List.of());
+    public void readSignature(String signature, Definition fallback) {
+        readSignature(signature, List.of(), fallback);
     }
 
-    public void readCodeBlock(Scanner source) {
-        readCodeBlock(source, List.of());
+    public void readCodeBlock(Scanner source, Definition fallback) {
+        readCodeBlock(source, List.of(), fallback);
     }
 
-    public void readAll(String signature, Scanner source) {
-        readSignature(signature);
-        readCodeBlock(source);
+    public void readAll(String signature, Scanner source, Definition fallback) {
+        readSignature(signature, fallback);
+        readCodeBlock(source, fallback);
     }
 
     @Override
@@ -92,14 +91,14 @@ public final class Package extends Definition {
     }
 
     public Package(String code) {
-        Utilities.removeStringAndComments(code);
+        code = Utilities.removeStringAndComments(code);
         if (!code.startsWith("package")) {
             code = NO_NAME + "\n" + code;
         }
-        Utilities.machineFormating(code);
+        code = Utilities.machineFormating(code);
 
         Scanner source = new Scanner(code);
         String signature = source.nextLine();
-        readAll(signature, source);
+        readAll(signature, source, this);
     }
 }

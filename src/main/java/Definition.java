@@ -1,6 +1,5 @@
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Scanner;
 
 /**
@@ -22,18 +21,22 @@ public abstract class Definition {
      *
      * @param signature Chữ kí
      * @param externalDefinition Các {@link Definition} đã được khai báo bên ngoài
-     * @see #readAll(String, Scanner, List)
+     * @param fallback Sử dụng {@link Definition} này làm parent nếu không thấy parent
+     * @see #readAll(String, Scanner, List, Definition)
      */
-    protected abstract void readSignature(String signature, List<Definition> externalDefinition);
+    protected abstract void readSignature(
+            String signature, List<Definition> externalDefinition, Definition fallback);
 
     /**
      * Đọc Code block của {@link Definition} tương ứng.
      *
      * @param source {@link Scanner} trỏ tới nơi bắt đầu Code block
      * @param externalDefinition Các {@link Definition} đã được khai báo bên ngoài
-     * @see #readAll(String, Scanner, List)
+     * @param fallback Sử dụng {@link Definition} này làm parent nếu không thấy parent
+     * @see #readAll(String, Scanner, List, Definition)
      */
-    protected abstract void readCodeBlock(Scanner source, List<Definition> externalDefinition);
+    protected abstract void readCodeBlock(
+            Scanner source, List<Definition> externalDefinition, Definition fallback);
 
     /**
      * Đọc Chữ kí và Code block của {@link Definition} tương ứng.
@@ -41,13 +44,16 @@ public abstract class Definition {
      * @param signature Chữ kí
      * @param source {@link Scanner} trỏ tới nơi bắt đầu Code block
      * @param externalDefinition Các {@link Definition} đã được khai báo bên ngoài
-     * @see #readSignature(String, List)
-     * @see #readCodeBlock(Scanner, List)
+     * @see #readSignature(String, List, Definition)
+     * @see #readCodeBlock(Scanner, List, Definition)
      */
     protected final void readAll(
-            String signature, Scanner source, List<Definition> externalDefinition) {
-        readSignature(signature, externalDefinition);
-        readCodeBlock(source, externalDefinition);
+            String signature,
+            Scanner source,
+            List<Definition> externalDefinition,
+            Definition fallback) {
+        readSignature(signature, externalDefinition, fallback);
+        readCodeBlock(source, externalDefinition, fallback);
     }
 
     /**
@@ -101,18 +107,4 @@ public abstract class Definition {
     public final void setParent(Definition parent) {
         this.parent = parent;
     }
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (o == null || getClass() != o.getClass()) {
-//            return false;
-//        }
-//        Definition that = (Definition) o;
-//        return Objects.equals(getFullName(), that.getFullName());
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hashCode(getFullName());
-//    }
 }

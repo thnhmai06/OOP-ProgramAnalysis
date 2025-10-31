@@ -49,5 +49,22 @@ public final class Utilities {
         ;
     }
 
+    /**
+     * Đếm số kí tự {@code character}.
+     *
+     * @param string Xâu cần đếm.
+     * @param character Kí tự
+     * @return Số kí tự đó trong xâu
+     */
+    public static int countChar(String string, char character) {
+        int count = 0;
+        for (int i = 0; i < string.length(); ++i) {
+            if (string.charAt(i) == character) {
+                ++count;
+            }
+        }
+        return count;
+    }
+
     private Utilities() {}
 }

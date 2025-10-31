@@ -10,7 +10,8 @@ import java.util.Scanner;
 public class Week10 {
     public static List<String> getAllFunctions(String fileContent) {
         final Package aPackage = new Package(fileContent);
-        final List<Method> methods = Method.filter(aPackage.getLocalDeclared());
+        final Class mainClass = aPackage.getMain();
+        final List<Method> methods = Method.filter(mainClass.getLocalDeclared());
         List<String> res = new ArrayList<>();
 
         for (Method method : methods) {
@@ -43,7 +44,7 @@ public class Week10 {
                 writer.write(line);
                 writer.write("\n");
             }
-             writer.write(Utilities.machineFormating(Utilities.removeStringAndComments(content)));
+            writer.write(Utilities.machineFormating(Utilities.removeStringAndComments(content)));
             writer.close();
         } catch (Exception e) {
             throw new RuntimeException(e);
