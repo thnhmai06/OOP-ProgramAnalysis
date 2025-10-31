@@ -6,7 +6,7 @@ import java.util.LinkedHashSet;
  *
  * <h1>{@link ExtendedLinkedHashSet}</h1>
  *
- * Cấu trúc dữ liệu cho phép mở rộng {@link LinkedHashSet} mà vẫn giữ nguyên bản thế gốc của nó.
+ * <p>Cấu trúc dữ liệu cho phép mở rộng {@link LinkedHashSet} mà vẫn giữ nguyên bản thế gốc của nó.
  *
  * <p>Sử dụng {@link #view()} để lấy ra view của set đã được mở rộng.
  *

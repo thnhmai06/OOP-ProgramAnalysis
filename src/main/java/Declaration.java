@@ -66,7 +66,8 @@ public abstract class Declaration {
      * @return Các khai báo có thể dùng được
      */
     public final ExtendedLinkedHashSet<Declaration> getDeclared() {
-        ExtendedLinkedHashSet<Declaration> declared = new ExtendedLinkedHashSet<>(internalDeclaration);
+        ExtendedLinkedHashSet<Declaration> declared =
+                new ExtendedLinkedHashSet<>(internalDeclaration);
         if (parent != null) {
             declared.extend(parent.getDeclared()); // parent đã chứa nó
         } else {

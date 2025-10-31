@@ -3,7 +3,25 @@ import java.util.LinkedList;
 import java.util.List;
 
 /** Week 10. Welcome to the OASIS World Final1! Champion round - Good luck! */
-public class Week10 {
+public final class Week10 {
+    /**
+     * Lấy hết tất cả {@link AMethod} ở bên trong {@link AClass}, kể cả các class con.
+     *
+     * @param clazz Class muốn lấy
+     * @return Tất cả các Method
+     */
+    private static List<AMethod> getAllMethodsRecursive(AClass clazz) {
+        List<AMethod> methods = new LinkedList<>();
+        for (Declaration declaration : clazz.getLocalDeclaration()) {
+            if (declaration instanceof AMethod) {
+                methods.add(((AMethod) declaration));
+            } else if (declaration instanceof AClass) {
+                methods.addAll(getAllMethodsRecursive((AClass) declaration));
+            }
+        }
+        return methods;
+    }
+
     /**
      *
      *
@@ -23,12 +41,7 @@ public class Week10 {
     public static List<String> getAllFunctions(String fileContent) {
         final APackage aPackage = APackage.from(fileContent);
         final AClass mainClass = aPackage.getMain();
-        final List<AMethod> methods = new LinkedList<>();
-        for (Declaration declaration : mainClass.getLocalDeclaration()) {
-            if (declaration instanceof AMethod) {
-                methods.add(((AMethod) declaration));
-            }
-        }
+        final List<AMethod> methods = getAllMethodsRecursive(mainClass);
 
         List<String> res = new ArrayList<>();
         for (AMethod method : methods) {
