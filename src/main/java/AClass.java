@@ -71,7 +71,10 @@ public final class AClass extends Definition {
 
         // thua, hết cứu, vậy là lần cuối đi bên nhau cay đắng nhưng ko đau :<
         final AClass newClass = new AClass(name);
-        newClass.parent = fallback;
+        // ngược lại -> kiểu nguyên thủy
+        if (Character.isUpperCase(name.charAt(0))) {
+            newClass.parent = fallback;
+        }
         definedClasses.add(newClass);
         return newClass;
     }

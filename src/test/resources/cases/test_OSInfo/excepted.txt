@@ -1,0 +1,1 @@
+[getDefault(), osName(), version(), arch()]
