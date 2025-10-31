@@ -1,53 +1,33 @@
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 /** Week 10. Welcome to the OASIS World Final1! Champion round - Good luck! */
 public class Week10 {
+    /**
+     *
+     *
+     * <h2>Lấy hết {@link AMethod} có trong {@link AClass} chính của {@link APackage}.</h2>
+     *
+     * <p>Yep. Đây là một solution khá là thử thách đối với em. Lúc đầu, em đi thẳng vào POP (hướng
+     * thủ tục) luôn như thói quen chơi Lập trình thi đấu, nhưng trong quá trình làm, em nhận ra nó
+     * rất khó để maintain và kiểm soát. Vậy nên em đã chuyển sang OOP để linh hoạt hơn, nhờ vậy em
+     * thấy việc thiết kế và viết code trở nên thuận tiện hơn hẳn. Qua đây nó cho em một cái nhìn
+     * khác về việc thiết kế hệ thống và lập trình ra nó. Em xin cảm ơn thầy/cô đã đưa ra một đề bài
+     * về parsing syntax khá là hay và đầy thử thách này. Em mong lần sau em sẽ ko gặp phải bài này
+     * nữa, vì huhu nó mất nhiều thời gian quá hic.
+     *
+     * @param fileContent Nội dung source code
+     * @return Các method fullname có trong đây
+     */
     public static List<String> getAllFunctions(String fileContent) {
-        final Package aPackage = new Package(fileContent);
-        final Class mainClass = aPackage.getMain();
-        final List<Method> methods = Method.filter(mainClass.getLocalDeclared());
+        final APackage aPackage = new APackage(fileContent);
+        final AClass mainClass = aPackage.getMain();
+        final List<AMethod> methods = AMethod.filter(mainClass.getLocalDeclared());
         List<String> res = new ArrayList<>();
 
-        for (Method method : methods) {
+        for (AMethod method : methods) {
             res.add(method.getFullName());
         }
         return res;
-    }
-
-    public static void main(String[] args) {
-        File myObj =
-                new File(
-                        "D:\\Development\\Code\\java\\ProgramAnalysis\\src\\main\\resources\\test.java");
-        StringBuilder builder = new StringBuilder();
-
-        try (Scanner myReader = new Scanner(myObj)) {
-            while (myReader.hasNextLine()) {
-                String data = myReader.nextLine();
-                builder.append(data).append('\n');
-            }
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
-        }
-        String content = builder.toString();
-        //        System.out.println(content);
-
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter("result.java"));
-            for (String line : getAllFunctions(content)) {
-                writer.write(line);
-                writer.write("\n");
-            }
-            writer.write(Utilities.machineFormating(Utilities.removeStringAndComments(content)));
-            writer.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

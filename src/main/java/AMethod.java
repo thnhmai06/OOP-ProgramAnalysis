@@ -9,25 +9,25 @@ import java.util.regex.Matcher;
 /**
  *
  *
- * <h1>{@link Method}</h1>
+ * <h1>{@link AMethod}</h1>
  *
- * Một phương thức trong {@link Class}. <br>
+ * <p>Một phương thức trong {@link AClass}. <br>
  * Giống {@link java.lang.reflect.Method}. Không chứa Code block.
  *
  * @apiNote checked
  */
-public final class Method extends Definition {
+public final class AMethod extends Definition {
     /**
-     * Lọc ra các {@link Method} trong {@link List} các {@link Definition}.
+     * Lọc ra các {@link AMethod} trong {@link List} các {@link Definition}.
      *
      * @param definitions Các {@link Definition}
-     * @return Các {@link Method}
+     * @return Các {@link AMethod}
      */
-    public static List<Method> filter(List<Definition> definitions) {
-        List<Method> res = new LinkedList<>();
+    public static List<AMethod> filter(List<Definition> definitions) {
+        List<AMethod> res = new LinkedList<>();
         for (Definition definition : definitions) {
-            if (definition instanceof Method) {
-                res.add((Method) definition);
+            if (definition instanceof AMethod) {
+                res.add((AMethod) definition);
             }
         }
         return res;
@@ -36,7 +36,8 @@ public final class Method extends Definition {
     private Parameters parameters;
 
     @Override
-    protected void readCodeBlock(Scanner source, List<Definition> externalDefinition, Definition fallback) {
+    protected void readCodeBlock(
+            Scanner source, List<Definition> externalDefinition, Definition fallback) {
         if (source.nextLine().contains("{")) {
             int balance = 0;
             do {
@@ -44,14 +45,14 @@ public final class Method extends Definition {
                 // ...
 
                 final String line = source.nextLine();
-                balance += Utilities.countChar(line, '{');
-                balance -= Utilities.countChar(line, '}');
+                balance += AUtilities.countChar(line, '{');
+                balance -= AUtilities.countChar(line, '}');
             } while (source.hasNextLine() && balance >= 0);
         }
     }
 
     public void readCodeBlock(Scanner source, Definition fallback) {
-        readCodeBlock(source, List.of(), fallback);
+        readCodeBlock(source, new LinkedList<>(), fallback);
     }
 
     @Override
@@ -61,7 +62,8 @@ public final class Method extends Definition {
         if (match.matches()) {
             simpleName = match.group(1);
             // parent của method chỉ có thể là class
-            parameters = new Parameters(match.group(2), Class.filter(externalDefinition), fallback);
+            parameters =
+                    new Parameters(match.group(2), AClass.filter(externalDefinition), fallback);
         }
     }
 
@@ -70,11 +72,11 @@ public final class Method extends Definition {
         return String.format("%s(%s)", simpleName, parameters.toString());
     }
 
-    public Method(Definition parent) {
+    public AMethod(Definition parent) {
         this.parent = parent;
     }
 
-    public Method(
+    public AMethod(
             Definition parent,
             String signature,
             List<Definition> externalDefinition,
@@ -83,24 +85,27 @@ public final class Method extends Definition {
         readSignature(signature, externalDefinition, fallback);
     }
 
-    /** Những tham số được truyền vào {@link Method}. */
+    /**
+     * Những tham số được truyền vào {@link AMethod}. Đại diện cho Tất cả các tham số truyền vào
+     * {@link AMethod}.
+     */
     private static final class Parameters {
         public LinkedHashMap<String, String> values = new LinkedHashMap<>();
 
         /**
-         * Làm cho các Class trong {@code classes} thành Tên đầy đủ.
+         * Làm cho các AClass trong {@code classes} thành Tên đầy đủ.
          *
          * @param classes Xâu cần thực hiện
-         * @param externalClasses Các {@link Class} đã được định nghĩa
-         * @return Xâu với các Class là Tên đầy đủ
+         * @param externalClasses Các {@link AClass} đã được định nghĩa
+         * @return Xâu với các AClass là Tên đầy đủ
          */
         private static String makeClassFullName(
-                String classes, List<Class> externalClasses, Definition fallback) {
+                String classes, List<AClass> externalClasses, Definition fallback) {
             HashMap<String, String> replacements = new HashMap<>();
             Matcher match = Patterns.METHOD_PARAMETER_TYPE.matcher(classes);
             while (match.find()) {
                 final String className = match.group(1);
-                final Class clazz = Class.find(className, externalClasses, fallback);
+                final AClass clazz = AClass.find(className, externalClasses, fallback);
                 replacements.put(className, clazz.getFullName());
             }
 
@@ -110,7 +115,7 @@ public final class Method extends Definition {
             return classes;
         }
 
-        public Parameters(String signature, List<Class> externalClass, Definition fallback) {
+        public Parameters(String signature, List<AClass> externalClass, Definition fallback) {
             Matcher match = Patterns.METHOD_PARAMETER.matcher(signature);
             while (match.find()) {
                 String name = match.group(2);

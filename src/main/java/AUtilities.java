@@ -1,7 +1,7 @@
-/** Utilities. */
-public final class Utilities {
+/** AUtilities. */
+public final class AUtilities {
     /**
-     * Class có tên {@code fullName} có tồn tại không?
+     * AClass có tên {@code fullName} có tồn tại không.
      *
      * @param fullName Tên đầy đủ của class
      * @return {@code true} nếu tồn tại, {@code false} nếu em cung dang voi thi con co hoi gi cho
@@ -17,7 +17,7 @@ public final class Utilities {
     }
 
     /**
-     * Xóa tất cả string cố định và comment trong code
+     * Xóa tất cả string cố định và comment trong code.
      *
      * @param code Mã nguồn
      * @return Code không có comment và string cố định
@@ -66,5 +66,5 @@ public final class Utilities {
         return count;
     }
 
-    private Utilities() {}
+    private AUtilities() {}
 }

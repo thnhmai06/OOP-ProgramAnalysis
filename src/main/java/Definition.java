@@ -7,7 +7,7 @@ import java.util.Scanner;
  *
  * <h1>{@link Definition}</h1>
  *
- * Một Định nghĩa. Yep. Nó là thành phần để tương tác khi code.
+ * <p>Một Định nghĩa. Yep. Nó là thành phần để tương tác khi code.
  *
  * @apiNote checked
  */

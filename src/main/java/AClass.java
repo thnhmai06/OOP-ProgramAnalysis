@@ -9,46 +9,45 @@ import java.util.regex.Matcher;
 /**
  *
  *
- * <h1>{@link Class}</h1>
+ * <h1>{@link AClass}</h1>
  *
- * Một Class. Yep. Bạn mong chờ điều gì chứ :))). <br>
+ * <p>Một AClass. Yep. Bạn mong chờ điều gì chứ :))). <br>
  * Giống như {@link java.lang.Class}
  *
  * @apiNote checked
  */
-public final class Class extends Definition {
+public final class AClass extends Definition {
     /**
-     * Lọc ra các {@link Class} trong {@link HashSet} các {@link Definition}.
+     * Lọc ra các {@link AClass} trong {@link HashSet} các {@link Definition}.
      *
      * @param definitions Các {@link Definition}
-     * @return Các {@link Class}
+     * @return Các {@link AClass}
      */
-    public static List<Class> filter(List<Definition> definitions) {
-        List<Class> res = new LinkedList<>();
+    public static List<AClass> filter(List<Definition> definitions) {
+        List<AClass> res = new LinkedList<>();
         for (Definition definition : definitions) {
-            if (definition instanceof Class) {
-                res.add((Class) definition);
+            if (definition instanceof AClass) {
+                res.add((AClass) definition);
             }
         }
         return res;
     }
 
     /**
-     * Tìm kiếm/Tạo {@link Class} phù hợp với tên {@code name} trong {@code definedClasses}.
-     * <br>
-     *<i> aka tìm bố mẹ cho trẻ lạc :> </i>
+     * Tìm kiếm/Tạo {@link AClass} phù hợp với tên {@code name} trong {@code definedClasses}. <br>
+     * <i> aka tìm bố mẹ cho trẻ lạc :> </i>
      *
      * @param name Tên cần tìm
-     * @param definedClasses Danh sách các {@link Class} đã định nghĩa
+     * @param definedClasses Danh sách các {@link AClass} đã định nghĩa
      * @param fallback Sử dụng {@link Definition} này làm parent nếu không thấy parent
-     * @return Class phù hợp với {@code name}
+     * @return AClass phù hợp với {@code name}
      */
-    public static Class find(String name, List<Class> definedClasses, Definition fallback) {
+    public static AClass find(String name, List<AClass> definedClasses, Definition fallback) {
         // Đã là Full name
-        boolean isFullName = Utilities.isClassExisted(name);
+        boolean isFullName = AUtilities.isClassExisted(name);
 
         // Nằm trong đống defined
-        for (Class definedClass : definedClasses) {
+        for (AClass definedClass : definedClasses) {
             if (isFullName) {
                 if (name.equals(definedClass.getFullName())) {
                     return definedClass;
@@ -62,22 +61,24 @@ public final class Class extends Definition {
         final String[] commons = {"java.util.", "java.lang."};
         for (String common : commons) {
             final String possibleName = common + name;
-            if (Utilities.isClassExisted(possibleName)) {
-                final Class newClass = new Class(possibleName); // không quan tâm tới package ở đây
+            if (AUtilities.isClassExisted(possibleName)) {
+                final AClass newClass =
+                        new AClass(possibleName); // không quan tâm tới package ở đây
                 definedClasses.add(newClass);
                 return newClass;
             }
         }
 
         // thua, hết cứu, vậy là lần cuối đi bên nhau cay đắng nhưng ko đau :<
-        final Class newClass = new Class(name);
+        final AClass newClass = new AClass(name);
         newClass.parent = fallback;
         definedClasses.add(newClass);
         return newClass;
     }
 
     @Override
-    protected void readSignature(String signature, List<Definition> externalDefinition, Definition fallback) {
+    protected void readSignature(
+            String signature, List<Definition> externalDefinition, Definition fallback) {
         Matcher externalMatch = Patterns.IMPORT.matcher(signature);
         if (externalMatch.matches()) {
             final String parentName = externalMatch.group(1);
@@ -102,27 +103,28 @@ public final class Class extends Definition {
             return;
         }
 
-        throw new IllegalArgumentException("Không đọc được Class: " + signature);
+        throw new IllegalArgumentException("Không đọc được AClass: " + signature);
     }
 
     @Override
-    public void readCodeBlock(Scanner source, List<Definition> externalDefinition, Definition fallback) {
-        LinkedHashMap<Method, String> holder = new LinkedHashMap<>();
+    public void readCodeBlock(
+            Scanner source, List<Definition> externalDefinition, Definition fallback) {
+        LinkedHashMap<AMethod, String> holder = new LinkedHashMap<>();
         final List<Definition> definedClassAndPackage = getDeclared(); // lazy
         if (source.nextLine().contains("{")) {
             int balance = 0;
             do {
                 final String line = source.nextLine();
 
-                // TH Class lồng class (bỏ qua)
+                // TH AClass lồng class (bỏ qua)
                 //                if (Patterns.CLASS.matcher(line).matches()) {
-                //                    final Class clazz = new Class(this, line, source,
+                //                    final AClass clazz = new AClass(this, line, source,
                 // definedClassAndPackage);
                 //                    localDeclared.add(clazz);
                 //                    definedClassAndPackage.add(clazz); // lazy update
                 //                } else
                 if (Patterns.METHOD.matcher(line).matches()) {
-                    final Method method = new Method(this);
+                    final AMethod method = new AMethod(this);
                     localDeclared.add(method);
                     holder.put(method, line);
 
@@ -130,13 +132,13 @@ public final class Class extends Definition {
                 }
 
                 // update balance
-                balance += Utilities.countChar(line, '{');
-                balance -= Utilities.countChar(line, '}');
+                balance += AUtilities.countChar(line, '{');
+                balance -= AUtilities.countChar(line, '}');
             } while (source.hasNextLine() && balance >= 0);
         }
 
-        for (Map.Entry<Method, String> hold : holder.entrySet()) {
-            final Method method = hold.getKey();
+        for (Map.Entry<AMethod, String> hold : holder.entrySet()) {
+            final AMethod method = hold.getKey();
             final String signature = hold.getValue();
             method.readSignature(signature, this.getDeclared(), fallback);
         }
@@ -150,20 +152,25 @@ public final class Class extends Definition {
         return String.format("%s.%s", parent.getFullName(), simpleName);
     }
 
-    private Class(String simpleName) {
+    private AClass(String simpleName) {
         this.simpleName = simpleName;
     }
 
-    public Class(Definition parent, String signature, List<Definition> externalDeclaration, Definition fallback) {
+    public AClass(
+            Definition parent,
+            String signature,
+            List<Definition> externalDeclaration,
+            Definition fallback) {
         this.parent = parent;
         readSignature(signature, externalDeclaration, fallback);
     }
 
-    public Class(
+    public AClass(
             Definition parent,
             String signature,
             Scanner source,
-            List<Definition> externalDeclaration, Definition fallback) {
+            List<Definition> externalDeclaration,
+            Definition fallback) {
         this(parent, signature, externalDeclaration, fallback);
         readCodeBlock(source, externalDeclaration, fallback);
     }
