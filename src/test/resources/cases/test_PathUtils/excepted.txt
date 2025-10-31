@@ -1,0 +1,1 @@
+[fromObject(java.lang.Object), getPathForObject(java.lang.Object), getTargetPath(), getNextPath(java.nio.file.Path,java.lang.String,java.lang.String), getBaseDir()]
