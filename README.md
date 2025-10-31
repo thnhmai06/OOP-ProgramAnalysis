@@ -172,7 +172,7 @@ Dưới đây là một số Expected Output cho một số trường hợp trí
 * **[VolumeInfo.java](https://github.com/Nordstrom/Java-Utils/blob/master/src/main/java/com/nordstrom/common/file/VolumeInfo.java)**
 
 ```
- getVolumeProps(), getVolumeProps(java.io.InputStream)]
+ [getVolumeProps(), getVolumeProps(java.io.InputStream)]
 ```
 
 * **[RandomNumberUtils.java](https://github.com/RKumsher/utils/blob/master/src/main/java/com/github/rkumsher/number/RandomNumberUtils.java)**
@@ -184,7 +184,7 @@ Dưới đây là một số Expected Output cho một số trường hợp trí
 * **[DatabaseUtils.java](https://github.com/Nordstrom/Java-Utils/blob/master/src/main/java/com/nordstrom/common/jdbc/DatabaseUtils.java)**
 
 ```
-[update(com.nordstrom.common.jdbc.utils.QueryAPI,java.lang.Object), getInt(com.nordstrom.common.jdbc.utils.QueryAPI,java.lang.Object), getString(com.nordstrom.common.jdbc.utils.QueryAPI,java.lang.Object), getResultPackage(com.nordstrom.common.jdbc.utils.QueryAPI,java.lang.Object), executeQuery(java.lang.Class<?>,com.nordstrom.common.jdbc.utils.QueryAPI,java.lang.Object), executeQuery(java.lang.Class<?>,java.lang.String,java.lang.String,java.lang.Object), getInt(com.nordstrom.common.jdbc.utils.SProcAPI,java.lang.Object), getString(com.nordstrom.common.jdbc.utils.SProcAPI,java.lang.Object), getResultPackage(com.nordstrom.common.jdbc.utils.SProcAPI,java.lang.Object), executeStoredProcedure(java.lang.Class<?>,com.nordstrom.common.jdbc.utils.SProcAPI,java.lang.Object), executeStoredProcedure(java.lang.Class<?>,java.lang.String,java.lang.String,com.nordstrom.common.jdbc.Param), executeStatement(java.lang.Class<?>,java.sql.Connection,java.sql.PreparedStatement), getConnection(java.lang.String)]
+[update(com.nordstrom.common.jdbc.DatabaseUtils.QueryAPI,java.lang.Object), getInt(com.nordstrom.common.jdbc.DatabaseUtils.QueryAPI,java.lang.Object), getString(com.nordstrom.common.jdbc.DatabaseUtils.QueryAPI,java.lang.Object), getResultPackage(com.nordstrom.common.jdbc.DatabaseUtils.QueryAPI,java.lang.Object), executeQuery(java.lang.Class<?>,com.nordstrom.common.jdbc.DatabaseUtils.QueryAPI,java.lang.Object), executeQuery(java.lang.Class<?>,java.lang.String,java.lang.String,java.lang.Object), getInt(com.nordstrom.common.jdbc.DatabaseUtils.SProcAPI,java.lang.Object), getString(com.nordstrom.common.jdbc.DatabaseUtils.SProcAPI,java.lang.Object), getResultPackage(com.nordstrom.common.jdbc.DatabaseUtils.SProcAPI,java.lang.Object), executeStoredProcedure(java.lang.Class<?>,com.nordstrom.common.jdbc.DatabaseUtils.SProcAPI,java.lang.Object), executeStoredProcedure(java.lang.Class<?>,java.lang.String,java.lang.String,com.nordstrom.common.jdbc.Param), executeStatement(java.lang.Class<?>,java.sql.Connection,java.sql.PreparedStatement), getConnection(java.lang.String)]
 ```
 
 *Chú ý trường hợp phương thức đặt trong comment.*
