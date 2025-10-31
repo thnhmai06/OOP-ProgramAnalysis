@@ -1,12 +1,12 @@
 import java.util.regex.Pattern;
 
 public final class Patterns {
-    public static final Pattern PACKAGE =
-            java.util.regex.Pattern.compile("package ([\\w.]+);"); // [package]
+    public static final Pattern PACKAGE = // ! ở dạng Code block, không phải dạng thường
+            java.util.regex.Pattern.compile("package ([\\s\\S]*?)"); // [package]
     public static final Pattern IMPORT =
             Pattern.compile("import(?: static)? ([\\w.]+)\\.(\\w+);"); // [package, class]
     public static final Pattern CLASS =
-            Pattern.compile("public (?:\\w+\\s+)*(?:class|interface) (\\w+)"); // [class]
+            Pattern.compile("public (?:\\w+\\s+)*(?:class|interface|enum) (\\w+)"); // [class]
 
     public static final Pattern METHOD =
             Pattern.compile("public static [\\s\\S]*? (\\w+)\\(([\\s\\S]*?)\\)"); // [name, params]

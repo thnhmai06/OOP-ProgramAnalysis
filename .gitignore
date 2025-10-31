@@ -5,6 +5,15 @@ out/
 !**/src/test/**/out/
 .kotlin
 
+### Gradle
+.gradle
+**/build/
+!src/**/build/
+gradle-app.setting
+!gradle-wrapper.jar
+!gradle-wrapper.properties
+.gradletasknamecache
+
 ### Eclipse ###
 .apt_generated
 .classpath

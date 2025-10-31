@@ -14,8 +14,12 @@ import java.util.regex.Matcher;
  * @apiNote checked
  */
 public final class Package extends Definition {
+    private static final String NO_NAME = "package ;";
+    private Class main;
+
     /**
      * Lọc ra các {@link Package} trong {@link List} các {@link Definition}.
+     *
      * @param definitions Các {@link Definition}
      * @return Các {@link Package}
      */
@@ -36,19 +40,42 @@ public final class Package extends Definition {
             simpleName = internalMatch.group(1);
             return;
         }
-
-        Matcher externalMatch = Patterns.IMPORT.matcher(signature);
-        if (externalMatch.matches()) {
-            simpleName = externalMatch.group(1);
-            return;
-        }
-
         throw new IllegalArgumentException("Không đọc được Package: " + signature);
     }
 
     @Override
     protected void readCodeBlock(Scanner source, List<Definition> externalDefinition) {
-        //TODO: Tất cả logic bắt đầu từ đây
+        if (source.nextLine().contains("{")) {
+            do {
+                final String line = source.nextLine();
+                if (line.contains("}")) {
+                    break;
+                }
+
+                if (Patterns.IMPORT.matcher(line).matches()) {
+                    localDeclared.add(new Class(this, line, getDeclared()));
+                    continue;
+                }
+                if (Patterns.CLASS.matcher(line).matches()) {
+                    main = new Class(this, line, getDeclared());
+                    localDeclared.add(main);
+                    continue;
+                }
+            } while (source.hasNextLine());
+        }
+    }
+
+    public void readSignature(String signature) {
+        readSignature(signature, List.of());
+    }
+
+    public void readCodeBlock(Scanner source) {
+        readCodeBlock(source, List.of());
+    }
+
+    public void readAll(String signature, Scanner source) {
+        readSignature(signature);
+        readCodeBlock(source);
     }
 
     @Override
@@ -56,12 +83,23 @@ public final class Package extends Definition {
         return getSimpleName();
     }
 
-    public Package(String signature) {
-        readSignature(signature, List.of());
+    public Class getMain() {
+        return main;
     }
 
-    public Package (String signature, Scanner source) {
-        this(signature);
-        readCodeBlock(source, List.of());
+    public void setMain(Class main) {
+        this.main = main;
+    }
+
+    public Package(String code) {
+        Utilities.removeStringAndComments(code);
+        if (!code.startsWith("package")) {
+            code = NO_NAME + "\n" + code;
+        }
+        Utilities.machineFormating(code);
+
+        Scanner source = new Scanner(code);
+        String signature = source.nextLine();
+        readAll(signature, source);
     }
 }

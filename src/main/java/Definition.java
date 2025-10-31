@@ -66,6 +66,10 @@ public abstract class Definition {
         return declared;
     }
 
+    public final List<Definition> getLocalDeclared() {
+        return localDeclared;
+    }
+
     /**
      * Tên Đầy đủ của Định nghĩa code (giống như {@link java.lang.Class#getCanonicalName()}). <br>
      * Ví dụ: {@code java.util.List}
@@ -98,17 +102,17 @@ public abstract class Definition {
         this.parent = parent;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Definition that = (Definition) o;
-        return Objects.equals(getFullName(), that.getFullName());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(getFullName());
-    }
+//    @Override
+//    public boolean equals(Object o) {
+//        if (o == null || getClass() != o.getClass()) {
+//            return false;
+//        }
+//        Definition that = (Definition) o;
+//        return Objects.equals(getFullName(), that.getFullName());
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return Objects.hashCode(getFullName());
+//    }
 }

@@ -1,7 +1,4 @@
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 
 /**
@@ -56,7 +53,7 @@ public final class Class extends Definition {
         // Vẫn ko thấy, dành thử với với class sẵn có thường thấy trong java
         final String[] commons = {"java.util.", "java.lang."};
         for (String common : commons) {
-            final var possibleName = common + name;
+            final String possibleName = common + name;
             if (Utilities.isClassExisted(possibleName)) {
                 final Class newClass = new Class(possibleName); // không quan tâm tới package ở đây
                 definedClasses.add(newClass);
@@ -80,17 +77,18 @@ public final class Class extends Definition {
 
         Matcher externalMatch = Patterns.IMPORT.matcher(signature);
         if (externalMatch.matches()) {
-            final String patentName = externalMatch.group(1);
+            final String parentName = externalMatch.group(1);
             simpleName = externalMatch.group(2);
 
-            final List<Package> packages = Package.filter(externalDefinition);
-            packages.removeIf(pkg -> !pkg.getFullName().equals(patentName));
-            if (packages.isEmpty()) {
-                simpleName =
-                        String.format(
-                                "%s%s%s", patentName, !patentName.isEmpty() ? "." : "", simpleName);
-            } else {
-                parent = packages.get(0);
+            // parent của class có thể là package, hoặc class
+            if (!parentName.isEmpty()) {
+                for (Definition definition : externalDefinition) {
+                    if (definition.getFullName().equals(parentName)) {
+                        parent = definition;
+                        return;
+                    }
+                }
+                simpleName = String.format("%s.%s", parentName, simpleName);
             }
             return;
         }
@@ -100,7 +98,34 @@ public final class Class extends Definition {
 
     @Override
     public void readCodeBlock(Scanner source, List<Definition> externalDefinition) {
-        // TODO: Logic đọc Method bắt đầu ở đây.
+        LinkedHashMap<Method, String> holder = new LinkedHashMap<>();
+        final List<Definition> definedClassAndPackage = getDeclared(); // lazy
+        if (source.nextLine().contains("{")) {
+            do {
+                final String line = source.nextLine();
+                if (line.contains("}")) {
+                    break;
+                }
+
+                if (Patterns.CLASS.matcher(line).matches()) {
+                    final Class clazz = new Class(this, line, source, definedClassAndPackage);
+                    localDeclared.add(clazz);
+                    definedClassAndPackage.add(clazz); // lazy update
+                } else if (Patterns.METHOD.matcher(line).matches()) {
+                    final Method method = new Method(this);
+                    localDeclared.add(method);
+                    holder.put(method, line);
+
+                    method.readCodeBlock(source);
+                }
+            } while (source.hasNextLine());
+        }
+
+        for (Map.Entry<Method, String> hold : holder.entrySet()) {
+            final Method method = hold.getKey();
+            final String signature = hold.getValue();
+            method.readSignature(signature, this.getDeclared());
+        }
     }
 
     @Override
@@ -113,16 +138,17 @@ public final class Class extends Definition {
         this.simpleName = simpleName;
     }
 
-    public Class(Definition parent) {
+    public Class(Definition parent, String signature, List<Definition> externalDeclaration) {
         this.parent = parent;
+        readSignature(signature, externalDeclaration);
     }
 
     public Class(
             Definition parent,
-            String definition,
+            String signature,
             Scanner source,
-            LinkedList<Definition> externalDeclaration) {
-        this(parent);
+            List<Definition> externalDeclaration) {
+        this(parent, signature, externalDeclaration);
         readCodeBlock(source, externalDeclaration);
     }
 }

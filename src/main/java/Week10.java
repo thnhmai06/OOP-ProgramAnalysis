@@ -1,21 +1,28 @@
-package old;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 /** Week 10. Welcome to the OASIS World Final1! Champion round - Good luck! */
 public class Week10 {
     public static List<String> getAllFunctions(String fileContent) {
-        final Package packake = new Package(fileContent);
-        return packake.getMethods();
+        final Package aPackage = new Package(fileContent);
+        final List<Method> methods = Method.filter(aPackage.getLocalDeclared());
+        List<String> res = new ArrayList<>();
+
+        for (Method method : methods) {
+            res.add(method.getFullName());
+        }
+        return res;
     }
 
     public static void main(String[] args) {
-        File myObj = new File("test.java");
+        File myObj =
+                new File(
+                        "D:\\Development\\Code\\java\\ProgramAnalysis\\src\\main\\resources\\test.java");
         StringBuilder builder = new StringBuilder();
 
         try (Scanner myReader = new Scanner(myObj)) {
@@ -28,7 +35,7 @@ public class Week10 {
             e.printStackTrace();
         }
         String content = builder.toString();
-//        System.out.println(content);
+        //        System.out.println(content);
 
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter("result.java"));
@@ -36,7 +43,7 @@ public class Week10 {
                 writer.write(line);
                 writer.write("\n");
             }
-//            writer.write(old.Utilities.machineFormating(content));
+             writer.write(Utilities.machineFormating(Utilities.removeStringAndComments(content)));
             writer.close();
         } catch (Exception e) {
             throw new RuntimeException(e);

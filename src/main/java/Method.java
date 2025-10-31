@@ -30,17 +30,31 @@ public final class Method extends Definition {
 
     private Parameters parameters;
 
-    /**
-     * @deprecated Không hỗ trợ
-     */
     @Override
-    protected void readCodeBlock(Scanner source, List<Definition> externalDefinition) {}
+    protected void readCodeBlock(Scanner source, List<Definition> externalDefinition) {
+        int scopeLevel = 0;
+        do {
+            final String line = source.nextLine();
+            for (int i=0; i<line.length(); ++i) {
+                if (line.charAt(i) == '{') {
+                    ++scopeLevel;
+                } else if (line.charAt(i) == '}') {
+                    --scopeLevel;
+                }
+            }
+        } while (source.hasNextLine() && scopeLevel > 0);
+    }
+
+    public void readCodeBlock(Scanner source) {
+        readCodeBlock(source, List.of());
+    }
 
     @Override
     protected void readSignature(String signature, List<Definition> externalDefinition) {
         Matcher match = Patterns.METHOD.matcher(signature);
         if (match.matches()) {
             simpleName = match.group(1);
+            // parent của method chỉ có thể là class
             parameters = new Parameters(match.group(2), Class.filter(externalDefinition));
         }
     }
@@ -67,15 +81,15 @@ public final class Method extends Definition {
          * Làm cho các Class trong {@code classes} thành Tên đầy đủ.
          *
          * @param classes Xâu cần thực hiện
-         * @param definedClasses Các {@link Class} đã được định nghĩa
+         * @param externalClasses Các {@link Class} đã được định nghĩa
          * @return Xâu với các Class là Tên đầy đủ
          */
-        private static String makeTypesFullName(String classes, List<Class> definedClasses) {
+        private static String makeClassFullName(String classes, List<Class> externalClasses) {
             HashMap<String, String> replacements = new HashMap<>();
             Matcher match = Patterns.METHOD_PARAMETER_TYPE.matcher(classes);
             while (match.find()) {
                 final String className = match.group(1);
-                final Class clazz = Class.filter(className, definedClasses);
+                final Class clazz = Class.filter(className, externalClasses);
                 replacements.put(className, clazz.getFullName());
             }
 
@@ -85,11 +99,11 @@ public final class Method extends Definition {
             return classes;
         }
 
-        public Parameters(String definition, List<Class> definedClasses) {
-            Matcher match = Patterns.METHOD_PARAMETER.matcher(definition);
+        public Parameters(String signature, List<Class> externalClass) {
+            Matcher match = Patterns.METHOD_PARAMETER.matcher(signature);
             while (match.find()) {
                 String name = match.group(2);
-                String types = makeTypesFullName(match.group(1), definedClasses);
+                String types = makeClassFullName(match.group(1), externalClass);
                 values.put(name, types);
             }
         }

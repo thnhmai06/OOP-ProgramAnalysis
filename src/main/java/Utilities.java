@@ -1,5 +1,4 @@
-import java.lang.Class;
-
+/** Utilities. */
 public final class Utilities {
     /**
      * Class có tên {@code fullName} có tồn tại không?
@@ -10,11 +9,24 @@ public final class Utilities {
      */
     public static boolean isClassExisted(String fullName) {
         try {
-            Class<?> clazz = Class.forName(fullName);
+            java.lang.Class<?> clazz = java.lang.Class.forName(fullName);
             return true;
         } catch (ClassNotFoundException e) {
             return false;
         }
+    }
+
+    /**
+     * Xóa tất cả string cố định và comment trong code
+     *
+     * @param code Mã nguồn
+     * @return Code không có comment và string cố định
+     */
+    public static String removeStringAndComments(String code) {
+        return code.replaceAll("\"[\\s\\S]*?\"", "") // ko có chỗ cho string constant xd
+                .replaceAll("/\\*[\\s\\S]*?\\*/", "") // Xóa comment dạng /* */
+                .replaceAll("//.*", "") // Xóa comment dạng //
+                .trim();
     }
 
     /**
@@ -24,14 +36,16 @@ public final class Utilities {
      * @return Code mà người khó đọc xd
      */
     public static String machineFormating(String code) {
-        return code
-                .replaceAll("\"[\\s\\S]*?\"", "") // ko có chỗ cho string constant xd
-                .replaceAll("/\\*[\\s\\S]*?\\*/", "") // Xóa comment dạng /* */
-                .replaceAll("//.*", "") // Xóa comment dạng //
-                .replaceAll(" +(\\W) +", "$1") // xóa kiểu "a = b" -> "a=b" (aka làm sát lại gần nhau)
-                .replaceAll("(\\s)\\s+", "$1") // Rút gọn double spacing
-                .replaceAll("\\s*([{}])\\s*", "\n$1\n") // Format lại new line của code block
-                .replaceAll("\n\n+", "\n") // Xóa double new line
+        return code.replaceAll(
+                                " +(\\W) +",
+                                "$1") // xóa kiểu "a = b" -> "a=b" (aka làm sát lại gần nhau)
+                        .replaceAll("(\\s)\\s+", "$1") // Rút gọn double spacing
+                        .replaceAll(
+                                "(package [\\s\\S]*?);", "$1 {") // đưa package về format code block
+                        .replaceAll(
+                                "\\s*([{}])\\s*", "\n$1\n") // Format lại new line của code block
+                        .replaceAll("\n\n+", "\n") // Xóa double new line
+                + "}" // close của package
         ;
     }
 
