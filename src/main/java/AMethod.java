@@ -59,7 +59,7 @@ public final class AMethod extends Definition {
     protected void readSignature(
             String signature, List<Definition> externalDefinition, Definition fallback) {
         Matcher match = Patterns.METHOD.matcher(signature);
-        if (match.matches()) {
+        if (match.find()) {
             simpleName = match.group(1);
             // parent của method chỉ có thể là class
             parameters =
@@ -116,11 +116,58 @@ public final class AMethod extends Definition {
         }
 
         public Parameters(String signature, List<AClass> externalClass, Definition fallback) {
-            Matcher match = Patterns.METHOD_PARAMETER.matcher(signature);
-            while (match.find()) {
-                String name = match.group(2);
-                String types = makeClassFullName(match.group(1), externalClass, fallback);
-                values.put(name, types);
+            //            Matcher match = Patterns.METHOD_PARAMETER.matcher(signature);
+            //            while (match.find()) {
+            //                String name = match.group(2);
+            //                String types = makeClassFullName(match.group(1), externalClass,
+            // fallback);
+            //                values.put(name, types);
+            //            }
+            StringBuilder type = new StringBuilder();
+            StringBuilder name = new StringBuilder();
+            boolean readingName = false;
+            int balance = 0;
+
+            for (char c : signature.toCharArray()) {
+                if (c == '<') {
+                    ++balance;
+                    type.append(c);
+                    continue;
+                } else if (c == '>') {
+                    --balance;
+                    type.append(c);
+                    continue;
+                }
+
+                if (balance == 0) {
+                    if (c == ' ') {
+                        readingName = true;
+                        continue;
+                    } else if (c == ',') {
+                        values.put(
+                                name.toString().trim(),
+                                makeClassFullName(type.toString().trim(), externalClass, fallback));
+
+                        // reset
+                        type.setLength(0);
+                        name.setLength(0);
+                        readingName = false;
+                        continue;
+                    }
+                }
+
+                if (readingName) {
+                    name.append(c);
+                } else {
+                    type.append(c);
+                }
+            }
+
+            // param cuối cùng
+            if (name.length() > 0 && type.length() > 0) {
+                values.put(
+                        name.toString().trim(),
+                        makeClassFullName(type.toString().trim(), externalClass, fallback));
             }
         }
 

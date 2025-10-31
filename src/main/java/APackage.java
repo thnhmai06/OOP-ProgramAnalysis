@@ -58,9 +58,12 @@ public final class APackage extends Definition {
 
                 if (Patterns.IMPORT.matcher(line).matches()) {
                     localDeclared.add(new AClass(this, line, getDeclared(), fallback));
-                } else if (Patterns.CLASS.matcher(line).matches()) {
-                    main = new AClass(this, line, source, getDeclared(), fallback);
-                    localDeclared.add(main);
+                } else if (Patterns.CLASS.matcher(line).find()) {
+                    AClass clazz = new AClass(this, line, source, getDeclared(), fallback);
+                    if (main == null) {
+                        main = clazz;
+                    }
+                    localDeclared.add(clazz);
                 }
 
                 // update balance

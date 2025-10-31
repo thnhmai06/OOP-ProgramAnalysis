@@ -101,7 +101,7 @@ public final class AClass extends Definition {
         }
 
         Matcher internalMatch = Patterns.CLASS.matcher(signature);
-        if (internalMatch.matches()) {
+        if (internalMatch.find()) {
             simpleName = internalMatch.group(1);
             return;
         }
@@ -126,7 +126,7 @@ public final class AClass extends Definition {
                 //                    localDeclared.add(clazz);
                 //                    definedClassAndPackage.add(clazz); // lazy update
                 //                } else
-                if (Patterns.METHOD.matcher(line).matches()) {
+                if (Patterns.METHOD.matcher(line).find()) {
                     final AMethod method = new AMethod(this);
                     localDeclared.add(method);
                     holder.put(method, line);
