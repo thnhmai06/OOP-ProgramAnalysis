@@ -2,22 +2,24 @@ import java.util.LinkedHashSet;
 import java.util.regex.Pattern;
 
 public final class Patterns {
-    public static final Pattern PACKAGE = // ! PACKAGE ở dạng Code block, không phải dạng thường
-            java.util.regex.Pattern.compile("package ([\\s\\S]*?)"); // [package]
-    public static final Pattern IMPORT =
-            Pattern.compile("import(?: static)? ([\\w.]+)\\.(\\w+);"); // [package, class]
+    // ! PACKAGE ở dạng Code block, không phải dạng thường
+    // [package]
+    public static final Pattern PACKAGE = Pattern.compile("package ([\\s\\S]*?)");
+    // [package, class]
+    public static final Pattern IMPORT = Pattern.compile("import(?: static)? ([\\w.]+)\\.(\\w+);");
+    // [class, generics]
     public static final Pattern CLASS =
             Pattern.compile(
-                    "public (?:\\w+\\s+)*(?:class|interface|enum) (\\w+)(?:<([\\s\\S]*)>)?(?:(?: extends|implements)[\\s\\S]*)?"); // [class, generics]
-
+                    "public (?:\\w+\\s+)*"
+                            + "(?:class|interface|enum) (\\w+)"
+                            + "(?:<([\\s\\S]*)>)?"
+                            + "(?:(?: extends|implements)[\\s\\S]*)?");
+    // [generics, name, params]
     public static final Pattern METHOD =
             Pattern.compile(
-                    "static (?:<([\\s\\S]*?)>)?[^=]*? (\\w+)\\(([\\s\\S]*?)\\)[\\s\\S]*?"); // [generics, name, params]
-    // Pattern này không đúng ở các trường hợp generic lồng nhau rất phức tạp
-    //    public static final Pattern METHOD_PARAMETER = // [classes, name]
-    // Pattern.compile("(?:final\\s+)?([\\w.]+(?:<[^<>]*>)?)(?:\\.\\.\\.|\\[])?\\s+(\\w+)");
-    public static final Pattern METHOD_PARAMETER_TYPE =
-            Pattern.compile("((?:[\\w.]+)?[A-Z]\\w*)"); // [class] x1
+                    "static (?:<([\\s\\S]*?)>)?" + "[^=]*? (\\w+)\\(([\\s\\S]*?)\\)[\\s\\S]*?");
+    // [class] x1
+    public static final Pattern METHOD_PARAMETER_TYPE = Pattern.compile("((?:[\\w.]+)?[A-Z]\\w*)");
 
     /**
      * Lấy tên của tất cả các Generic trên signature.
