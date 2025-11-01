@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
  *
  * @apiNote checked
  */
-public class AClass extends Declaration {
+public final class AClass extends Declaration {
     /**
      * Parse hết tên Generic có trong {@code rawGenerics} về {@link AClass}.
      *
