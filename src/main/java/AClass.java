@@ -105,9 +105,9 @@ public class AClass extends Declaration {
         }
 
         Matcher internalMatch = Patterns.CLASS.matcher(signature);
-        if (internalMatch.find()) {
-            simpleName = internalMatch.group(1);
-            String rawGenerics = internalMatch.group(2);
+        if (internalMatch.matches()) {
+            simpleName = internalMatch.group(2);
+            String rawGenerics = internalMatch.group(3);
             internalDeclaration.addAll(AClass.parsingGenerics(rawGenerics));
             return;
         }

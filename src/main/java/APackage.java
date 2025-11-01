@@ -54,12 +54,16 @@ public final class APackage extends Declaration {
             int balance = 0;
             do {
                 final String line = source.nextLine();
+                Matcher importMatch = Patterns.IMPORT.matcher(line);
+                Matcher classMatch = Patterns.CLASS.matcher(line);
 
-                if (Patterns.IMPORT.matcher(line).matches()) {
+                if (importMatch.matches()) {
                     internalDeclaration.add(new AClass(this, line, getDeclared(), this));
-                } else if (Patterns.CLASS.matcher(line).find()) {
+                } else if (classMatch.find()) {
                     AClass clazz = new AClass(this, line, source, getDeclared(), this);
-                    if (main == null) {
+
+                    String access = classMatch.group(1);
+                    if (access != null && access.equals("public") && main == null) {
                         main = clazz;
                     }
                     internalDeclaration.add(clazz);

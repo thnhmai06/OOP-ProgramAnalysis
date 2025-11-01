@@ -7,10 +7,10 @@ public final class Patterns {
     public static final Pattern PACKAGE = Pattern.compile("package ([\\s\\S]*?)");
     // [package, class]
     public static final Pattern IMPORT = Pattern.compile("import(?: static)? ([\\w.]+)\\.(\\w+);");
-    // [class, generics]
+    // [access, class, generics]
     public static final Pattern CLASS =
             Pattern.compile(
-                    "public (?:\\w+\\s+)*"
+                    "(public|protected|private)? (?:\\w+\\s+)*"
                             + "(?:class|interface|enum) (\\w+)"
                             + "(?:<([\\s\\S]*)>)?"
                             + "(?:(?: extends|implements)[\\s\\S]*)?");
