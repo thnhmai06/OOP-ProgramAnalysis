@@ -10,7 +10,7 @@ public final class Patterns {
     // [access, class, generics]
     public static final Pattern CLASS =
             Pattern.compile(
-                    "(public|protected|private)? (?:\\w+\\s+)*"
+                    "(?:(public|protected|private) )?(?:\\w+\\s+)*"
                             + "(?:class|interface|enum) (\\w+)"
                             + "(?:<([\\s\\S]*)>)?"
                             + "(?:(?: extends|implements)[\\s\\S]*)?");
