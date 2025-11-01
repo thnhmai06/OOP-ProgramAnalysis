@@ -16,6 +16,24 @@ public final class APackage extends Declaration {
     private AClass main;
 
     /**
+     * Khởi tạo {@link APackage} mới.
+     *
+     * <p>Gọi {@link #readAll(String)} để bắt đầu đọc code
+     *
+     * @see #from(String)
+     */
+    public APackage() {}
+
+    /**
+     * Khởi tạo {@link APackage} mới, chỉ có tên.
+     *
+     * @param name Tên Package
+     */
+    public APackage(String name) {
+        simpleName = name;
+    }
+
+    /**
      * Tạo một {@link APackage} mới từ source code.
      *
      * @param code Source code
@@ -109,23 +127,5 @@ public final class APackage extends Declaration {
 
     public void setMain(AClass main) {
         this.main = main;
-    }
-
-    /**
-     * Khởi tạo {@link APackage} mới.
-     *
-     * <p>Gọi {@link #readAll(String)} để bắt đầu đọc code
-     *
-     * @see #from(String)
-     */
-    public APackage() {}
-
-    /**
-     * Khởi tạo {@link APackage} mới, chỉ có tên.
-     *
-     * @param name Tên Package
-     */
-    public APackage(String name) {
-        simpleName = name;
     }
 }

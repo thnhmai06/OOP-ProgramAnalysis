@@ -12,8 +12,8 @@ import java.util.Scanner;
  * @apiNote checked
  */
 public abstract class Declaration {
-    protected Declaration parent = null;
     protected final LinkedHashSet<Declaration> internalDeclaration = new LinkedHashSet<>();
+    protected Declaration parent = null;
     protected String simpleName;
 
     /**

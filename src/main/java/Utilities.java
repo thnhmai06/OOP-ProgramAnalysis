@@ -14,6 +14,8 @@ public final class Utilities {
         "java.time.temporal."
     };
 
+    private Utilities() {}
+
     /**
      * AClass có tên {@code fullName} có tồn tại không.
      *
@@ -80,6 +82,4 @@ public final class Utilities {
         }
         return count;
     }
-
-    private Utilities() {}
 }

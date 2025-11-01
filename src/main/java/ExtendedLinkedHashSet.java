@@ -16,6 +16,19 @@ public final class ExtendedLinkedHashSet<T> {
     private LinkedHashSet<T> base;
     private LinkedHashSet<LinkedHashSet<T>> extend = new LinkedHashSet<>();
 
+    public ExtendedLinkedHashSet() {
+        base = new LinkedHashSet<>();
+    }
+
+    public ExtendedLinkedHashSet(LinkedHashSet<T> base) {
+        this.base = base;
+    }
+
+    public ExtendedLinkedHashSet(ExtendedLinkedHashSet<T> other) {
+        base = other.base;
+        extend = new LinkedHashSet<>(other.extend);
+    }
+
     /**
      * Lấy ra clone của {@link LinkedHashSet} đã được mở rộng.
      *
@@ -54,19 +67,6 @@ public final class ExtendedLinkedHashSet<T> {
     @SafeVarargs
     public final void shink(LinkedHashSet<T>... sets) {
         Arrays.asList(sets).forEach(extend::remove);
-    }
-
-    public ExtendedLinkedHashSet() {
-        base = new LinkedHashSet<>();
-    }
-
-    public ExtendedLinkedHashSet(LinkedHashSet<T> base) {
-        this.base = base;
-    }
-
-    public ExtendedLinkedHashSet(ExtendedLinkedHashSet<T> other) {
-        base = other.base;
-        extend = new LinkedHashSet<>(other.extend);
     }
 
     public LinkedHashSet<T> getBase() {

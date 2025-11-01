@@ -21,6 +21,8 @@ public final class Patterns {
     // [class] x1
     public static final Pattern METHOD_PARAMETER_TYPE = Pattern.compile("((?:[\\w.]+)?[A-Z]\\w*)");
 
+    private Patterns() {}
+
     /**
      * Lấy tên của tất cả các Generic trên signature.
      *
@@ -65,6 +67,4 @@ public final class Patterns {
         }
         return res;
     }
-
-    private Patterns() {}
 }

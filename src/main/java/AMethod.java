@@ -17,6 +17,19 @@ import java.util.regex.Matcher;
 public final class AMethod extends Declaration {
     private Parameters parameters;
 
+    public AMethod(Declaration parent) {
+        this.parent = parent;
+    }
+
+    public AMethod(
+            Declaration parent,
+            String signature,
+            ExtendedLinkedHashSet<Declaration> externalDeclaration,
+            Declaration fallback) {
+        this(parent);
+        readSignature(signature, externalDeclaration, fallback);
+    }
+
     @Override
     protected void readCodeBlock(
             Scanner source,
@@ -59,50 +72,12 @@ public final class AMethod extends Declaration {
         return simpleName + '(' + (parameters != null ? parameters.toString() : "") + ')';
     }
 
-    public AMethod(Declaration parent) {
-        this.parent = parent;
-    }
-
-    public AMethod(
-            Declaration parent,
-            String signature,
-            ExtendedLinkedHashSet<Declaration> externalDeclaration,
-            Declaration fallback) {
-        this(parent);
-        readSignature(signature, externalDeclaration, fallback);
-    }
-
     /**
      * Những tham số được truyền vào {@link AMethod}. Đại diện cho Tất cả các tham số truyền vào
      * {@link AMethod}.
      */
     private static final class Parameters {
         public LinkedHashMap<String, String> values = new LinkedHashMap<>();
-
-        /**
-         * Làm cho các AClass trong {@code classes} thành Tên đầy đủ.
-         *
-         * @param classes Xâu cần thực hiện
-         * @param externalClasses Các {@link AClass} đã được định nghĩa
-         * @return Xâu với các AClass là Tên đầy đủ
-         */
-        private static String makeClassFullName(
-                String classes,
-                ExtendedLinkedHashSet<Declaration> externalClasses,
-                Declaration fallback) {
-            HashMap<String, String> replacements = new HashMap<>();
-            Matcher match = Patterns.METHOD_PARAMETER_TYPE.matcher(classes);
-            while (match.find()) {
-                final String className = match.group(1);
-                final AClass clazz = AClass.find(className, externalClasses, fallback);
-                replacements.put(className, clazz.getFullName());
-            }
-
-            for (Map.Entry<String, String> replacement : replacements.entrySet()) {
-                classes = classes.replace(replacement.getKey(), replacement.getValue());
-            }
-            return classes;
-        }
 
         public Parameters(
                 String signature,
@@ -161,6 +136,31 @@ public final class AMethod extends Declaration {
                         name.toString().trim(),
                         makeClassFullName(type.toString().trim(), externalClass, fallback));
             }
+        }
+
+        /**
+         * Làm cho các AClass trong {@code classes} thành Tên đầy đủ.
+         *
+         * @param classes Xâu cần thực hiện
+         * @param externalClasses Các {@link AClass} đã được định nghĩa
+         * @return Xâu với các AClass là Tên đầy đủ
+         */
+        private static String makeClassFullName(
+                String classes,
+                ExtendedLinkedHashSet<Declaration> externalClasses,
+                Declaration fallback) {
+            HashMap<String, String> replacements = new HashMap<>();
+            Matcher match = Patterns.METHOD_PARAMETER_TYPE.matcher(classes);
+            while (match.find()) {
+                final String className = match.group(1);
+                final AClass clazz = AClass.find(className, externalClasses, fallback);
+                replacements.put(className, clazz.getFullName());
+            }
+
+            for (Map.Entry<String, String> replacement : replacements.entrySet()) {
+                classes = classes.replace(replacement.getKey(), replacement.getValue());
+            }
+            return classes;
         }
 
         @Override

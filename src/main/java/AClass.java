@@ -15,6 +15,29 @@ import java.util.regex.Matcher;
  * @apiNote checked
  */
 public final class AClass extends Declaration {
+    public AClass(String simpleName) {
+        this.simpleName = simpleName;
+    }
+
+    public AClass(
+            Declaration parent,
+            String signature,
+            ExtendedLinkedHashSet<Declaration> externalDeclaration,
+            Declaration fallback) {
+        this.parent = parent;
+        readSignature(signature, externalDeclaration, fallback);
+    }
+
+    public AClass(
+            Declaration parent,
+            String signature,
+            Scanner source,
+            ExtendedLinkedHashSet<Declaration> externalDeclaration,
+            Declaration fallback) {
+        this(parent, signature, externalDeclaration, fallback);
+        readCodeBlock(source, externalDeclaration, fallback);
+    }
+
     /**
      * Parse hết tên Generic có trong {@code rawGenerics} về {@link AClass}.
      *
@@ -156,28 +179,5 @@ public final class AClass extends Declaration {
             return getSimpleName();
         }
         return String.format("%s.%s", parent.getFullName(), simpleName);
-    }
-
-    public AClass(String simpleName) {
-        this.simpleName = simpleName;
-    }
-
-    public AClass(
-            Declaration parent,
-            String signature,
-            ExtendedLinkedHashSet<Declaration> externalDeclaration,
-            Declaration fallback) {
-        this.parent = parent;
-        readSignature(signature, externalDeclaration, fallback);
-    }
-
-    public AClass(
-            Declaration parent,
-            String signature,
-            Scanner source,
-            ExtendedLinkedHashSet<Declaration> externalDeclaration,
-            Declaration fallback) {
-        this(parent, signature, externalDeclaration, fallback);
-        readCodeBlock(source, externalDeclaration, fallback);
     }
 }
