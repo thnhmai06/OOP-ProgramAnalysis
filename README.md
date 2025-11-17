@@ -91,7 +91,7 @@ cứu [Phân tích chương trình](https://en.wikipedia.org/wiki/Static_program
 thời gian, vì thế bạn cần thật kiên nhẫn khi làm bài tập này.
 
 Đề bài: Áp dụng các phép biến đổi xâu, các cấu trúc dữ liệu của Java Collection Framework, hãy tạo lớp có tên **Week10**
-và cài đặt phương thức *List\<String\> getAllFunctions(String fileContent)* để lấy toàn bộ chữ ký các phương thức
+và cài đặt phương thức ```List<String> getAllFunctions(String fileContent)``` để lấy toàn bộ chữ ký các phương thức
 `static` (method signature) trong một tệp cho trước qua các phép xử lý xâu, trong đó *fileContent* là nội dung tệp bạn
 cần xử lý. Mỗi một phần tử String trong đối tượng trả về lưu mã nguồn phương thức static tìm được.
 
@@ -180,7 +180,7 @@ Tập dữ liệu được sử dụng để làm testcase được lấy từ h
 
 Dưới đây là một số Expected Output cho một số trường hợp trích xuất từ hai repository ở trên:
 
-* **[VolumeInfo.java](https://github.com/Nordstrom/Java-Utils/blob/master/src/main/java/com/nordstrom/common/file/VolumeInfo.java)**
+* **[VolumeInfo.java](https://github.com/thnhmai06/Nordstrom-Java-Utils/blob/master/src/main/java/com/nordstrom/common/file/VolumeInfo.java)**
 
 ```
  [getVolumeProps(), getVolumeProps(java.io.InputStream)]
@@ -192,7 +192,7 @@ Dưới đây là một số Expected Output cho một số trường hợp trí
 [randomInt(), randomInt(int,int), randomIntLessThan(int), randomLong(), randomPositiveLong(), randomNegativeLong(), randomLong(long,long), randomLongGreaterThan(long), randomLongLessThan(long), randomDouble(), randomPositiveDouble(), randomNegativeDouble(), randomDouble(double,double), randomDoubleGreaterThan(double), randomDoubleLessThan(double)]
 ```
 
-* **[DatabaseUtils.java](https://github.com/Nordstrom/Java-Utils/blob/master/src/main/java/com/nordstrom/common/jdbc/DatabaseUtils.java)**
+* **[DatabaseUtils.java](https://github.com/thnhmai06/Nordstrom-Java-Utils/blob/master/src/main/java/com/nordstrom/common/jdbc/DatabaseUtils.java)**
 
 ```
 [update(com.nordstrom.common.jdbc.DatabaseUtils.QueryAPI,java.lang.Object), getInt(com.nordstrom.common.jdbc.DatabaseUtils.QueryAPI,java.lang.Object), getString(com.nordstrom.common.jdbc.DatabaseUtils.QueryAPI,java.lang.Object), getResultPackage(com.nordstrom.common.jdbc.DatabaseUtils.QueryAPI,java.lang.Object), executeQuery(java.lang.Class<?>,com.nordstrom.common.jdbc.DatabaseUtils.QueryAPI,java.lang.Object), executeQuery(java.lang.Class<?>,java.lang.String,java.lang.String,java.lang.Object), getInt(com.nordstrom.common.jdbc.DatabaseUtils.SProcAPI,java.lang.Object), getString(com.nordstrom.common.jdbc.DatabaseUtils.SProcAPI,java.lang.Object), getResultPackage(com.nordstrom.common.jdbc.DatabaseUtils.SProcAPI,java.lang.Object), executeStoredProcedure(java.lang.Class<?>,com.nordstrom.common.jdbc.DatabaseUtils.SProcAPI,java.lang.Object), executeStoredProcedure(java.lang.Class<?>,java.lang.String,java.lang.String,com.nordstrom.common.jdbc.Param), executeStatement(java.lang.Class<?>,java.sql.Connection,java.sql.PreparedStatement), getConnection(java.lang.String)]
