@@ -1,6 +1,6 @@
-[submodule "src/test/resources/libs/Java-Utils"]
-	path = src/test/resources/libs/Java-Utils
-	url = https://github.com/Nordstrom/Java-Utils
 [submodule "src/test/resources/libs/utils"]
 	path = src/test/resources/libs/utils
 	url = https://github.com/RKumsher/utils
+[submodule "src/test/resources/libs/Java-Utils"]
+	path = src/test/resources/libs/Java-Utils
+	url = https://github.com/thnhmai06/Nordstrom-Java-Utils.git
