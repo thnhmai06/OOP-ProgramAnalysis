@@ -7,7 +7,7 @@ git clone --recurse-submodules -b template --single-branch https://github.com/th
 ```
 **_**Optional:**_** Đổi tên Branch để khi update lên repo sẽ chạy CI (repo của bạn)
 ```shell
-cd OOPProgramAnalysis
+cd OOP-ProgramAnalysis
 git checkout template
 git branch -m main
 ```
