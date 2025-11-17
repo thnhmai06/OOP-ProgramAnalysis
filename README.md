@@ -202,7 +202,7 @@ Dưới đây là một số Expected Output cho một số trường hợp trí
 
 ### Source code mẫu :
 
-- [Mẫu project đầy đủ, bao gồm cả test cases](https://github.com/thnhmai06/OOPProgramAnalysis/tree/template) (Recommend)
+- [Mẫu project đầy đủ, bao gồm cả test cases](https://github.com/thnhmai06/OOP-ProgramAnalysis/tree/template) (Recommend)
 - [Mẫu chỉ 1 class, được cung cấp ban đầu](https://github.com/oasis-homework/BaiTapHangTuan/blob/main/Week10.java)
 
 **Good luck!**
