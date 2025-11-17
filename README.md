@@ -3,7 +3,7 @@
 1. Clone Branch này về
 
 ```shell
-git clone --recurse-submodules -b template --single-branch https://github.com/thnhmai06/OOPProgramAnalysis.git
+git clone --recurse-submodules -b template --single-branch https://github.com/thnhmai06/OOP-ProgramAnalysis.git
 ```
 **_**Optional:**_** Đổi tên Branch để khi update lên repo sẽ chạy CI (repo của bạn)
 ```shell
