@@ -166,7 +166,7 @@ public static void printMessages(List<Message> messages) {
 
 Tập dữ liệu được sử dụng để làm testcase được lấy từ hai repository dưới đây:
 
-* [Nordstrom/Java-Utils](https://github.com/Nordstrom/Java-Utils)
+* [Nordstrom/Java-Utils](https://github.com/thnhmai06/Nordstrom-Java-Utils)
 * [RKumsher/utils](https://github.com/RKumsher/utils)
 
 Dưới đây là một số Expected Output cho một số trường hợp trích xuất từ hai repository ở trên:
