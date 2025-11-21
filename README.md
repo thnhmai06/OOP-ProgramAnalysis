@@ -2,6 +2,8 @@
 
 Tác giá: [@thnhmai06](https://github.com/thnhmai06) (mình)
 
+[Video giải thích](https://www.youtube.com/watch?v=6n1yW1WYOVk)
+
 Trạng thái: **Finished**
 
 - Điểm chức năng: `83.1/95` _(sai 1 test case bị hỏng)_
